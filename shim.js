@@ -1,10 +1,6 @@
 // CollabFox - Synchronous Main-World Compatibility Shim
 // Runs in world: "MAIN" at document_start to beat all page scripts with zero CSP interference.
 (() => {
-  try {
-    if (sessionStorage.getItem("__collabfox_disabled__") === "1") return;
-  } catch (e) {}
-
   const rawUa = navigator.userAgent || "";
   const ffMatch = rawUa.match(/Firefox\/(\d+)/);
   const ffMajor = ffMatch ? parseInt(ffMatch[1], 10) : 142;
@@ -24,7 +20,7 @@
     ? `Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${chromeVer} Safari/537.36`
     : `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${chromeVer} Safari/537.36`;
 
-  // Preserve original descriptors for revertibility
+  // Preserve original descriptors once at startup
   const origUA = Object.getOwnPropertyDescriptor(Navigator.prototype, "userAgent") ||
                  Object.getOwnPropertyDescriptor(navigator, "userAgent");
   const origAppVer = Object.getOwnPropertyDescriptor(Navigator.prototype, "appVersion") ||
@@ -33,45 +29,53 @@
                      Object.getOwnPropertyDescriptor(navigator, "vendor");
   const origSupports = window.CSS?.supports;
 
-  // Apply shims directly in main world
-  try {
-    Object.defineProperty(navigator, "userAgent", { get: () => chromeUA, configurable: true });
-    Object.defineProperty(navigator, "appVersion", { get: () => chromeUA.slice(8), configurable: true });
-    Object.defineProperty(navigator, "vendor", { get: () => "Google Inc.", configurable: true });
+  let isApplied = false;
 
-    if (!navigator.userAgentData) {
-      Object.defineProperty(navigator, "userAgentData", {
-        get: () => ({
-          brands: [
-            { brand: "Chromium", version: `${chromeMajor}` },
-            { brand: "Google Chrome", version: `${chromeMajor}` },
-            { brand: "Not?A_Brand", version: "24" }
-          ],
-          mobile: isAndroid,
-          platform: platformName,
-          getHighEntropyValues: () => Promise.resolve({
-            architecture: "x86",
-            bitness: "64",
-            model: "",
+  function applyShim() {
+    if (isApplied) return;
+    isApplied = true;
+
+    try {
+      Object.defineProperty(navigator, "userAgent", { get: () => chromeUA, configurable: true });
+      Object.defineProperty(navigator, "appVersion", { get: () => chromeUA.slice(8), configurable: true });
+      Object.defineProperty(navigator, "vendor", { get: () => "Google Inc.", configurable: true });
+
+      if (!navigator.userAgentData) {
+        Object.defineProperty(navigator, "userAgentData", {
+          get: () => ({
+            brands: [
+              { brand: "Chromium", version: `${chromeMajor}` },
+              { brand: "Google Chrome", version: `${chromeMajor}` },
+              { brand: "Not?A_Brand", version: "24" }
+            ],
+            mobile: isAndroid,
             platform: platformName,
-            platformVersion: "15.0.0"
-          })
-        }),
-        configurable: true
-      });
-    }
-  } catch (e) {}
+            getHighEntropyValues: () => Promise.resolve({
+              architecture: "x86",
+              bitness: "64",
+              model: "",
+              platform: platformName,
+              platformVersion: "15.0.0"
+            })
+          }),
+          configurable: true
+        });
+      }
+    } catch (e) {}
 
-  try {
-    if (origSupports) {
-      const boundOrig = origSupports.bind(window.CSS);
-      window.CSS.supports = (prop, val) =>
-        (typeof prop === "string" && prop.includes("-moz-appearance")) ? false : boundOrig(prop, val);
-    }
-  } catch (e) {}
+    try {
+      if (origSupports) {
+        const boundOrig = origSupports.bind(window.CSS);
+        window.CSS.supports = (prop, val) =>
+          (typeof prop === "string" && prop.includes("-moz-appearance")) ? false : boundOrig(prop, val);
+      }
+    } catch (e) {}
+  }
 
-  // Allow isolated-world controller to cleanly revert if user toggled off
-  window.addEventListener("__collabfox_revert__", () => {
+  function revertShim() {
+    if (!isApplied) return;
+    isApplied = false;
+
     try {
       if (origUA) Object.defineProperty(navigator, "userAgent", origUA);
       if (origAppVer) Object.defineProperty(navigator, "appVersion", origAppVer);
@@ -79,5 +83,18 @@
       delete navigator.userAgentData;
       if (origSupports) window.CSS.supports = origSupports;
     } catch (e) {}
-  }, { once: true });
+  }
+
+  // Register bridge listeners FIRST so signals are never dropped
+  window.addEventListener("__collabfox_apply__", applyShim);
+  window.addEventListener("__collabfox_revert__", revertShim);
+
+  // Synchronously apply at document_start unless explicitly disabled in sessionStorage
+  try {
+    if (sessionStorage.getItem("__collabfox_disabled__") !== "1") {
+      applyShim();
+    }
+  } catch (e) {
+    applyShim();
+  }
 })();
