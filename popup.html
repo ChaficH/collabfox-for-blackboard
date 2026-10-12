@@ -7,56 +7,45 @@
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-  <header class="header">
+  <div class="header">
     <div class="brand">
       <img src="icons/icon-32.png" alt="" class="logo">
       <span class="title">CollabFox</span>
     </div>
-    <span class="version-tag">v1.0.0</span>
-  </header>
+    <label class="switch" title="Toggle CollabFox">
+      <input type="checkbox" id="enableToggle" checked>
+      <span class="slider"></span>
+    </label>
+  </div>
 
-  <main class="content">
-    <div class="toggle-card">
-      <div class="toggle-info">
-        <span class="toggle-title">Compatibility Fix</span>
-        <span class="toggle-sub" id="toggleStateText">Enabled</span>
-      </div>
-      <label class="switch" title="Toggle compatibility fix">
-        <input type="checkbox" id="enableToggle" checked>
-        <span class="slider"></span>
-      </label>
+  <div class="status-bar" id="statusBar">
+    <span class="status-dot" id="statusDot"></span>
+    <span class="status-text" id="statusText">Checking...</span>
+  </div>
+
+  <div class="settings">
+    <div class="field">
+      <label class="field-label" for="osSelect">Platform</label>
+      <select id="osSelect" class="native-select">
+        <option value="auto" id="autoOption">Auto</option>
+        <option value="mac">macOS</option>
+        <option value="windows">Windows</option>
+        <option value="android">Android</option>
+        <option value="linux">Linux</option>
+      </select>
     </div>
 
-    <div class="status-badge" id="statusBadge" data-status="active">
-      <span class="status-dot"></span>
-      <div class="status-info">
-        <span class="status-main" id="statusMain">Active</span>
-        <span class="status-detail" id="statusDetail">Fix applied to this tab</span>
-      </div>
+    <div class="field">
+      <span class="field-label">Current tab</span>
+      <span class="field-value" id="currentSite" title="">—</span>
     </div>
+  </div>
 
-    <div class="info-table">
-      <div class="info-row">
-        <span class="info-key">Current Tab</span>
-        <span class="info-val mono" id="currentDomain" title="">Detecting...</span>
-      </div>
-      <div class="info-row">
-        <span class="info-key">Platform</span>
-        <span class="info-val mono" id="detectedPlatform">Detecting...</span>
-      </div>
-      <div class="info-row">
-        <span class="info-key">Intervention</span>
-        <span class="info-val mono">-moz-appearance + UA</span>
-      </div>
-    </div>
+  <button id="reloadTabBtn" class="reload-btn">Reload tab</button>
 
-    <button id="reloadTabBtn" class="reload-btn">Reload tab</button>
-  </main>
-
-  <footer class="footer">
-    <span class="footer-love">Made with ❤️ for the Firefox community</span>
-    <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=2033777" target="_blank" rel="noopener" class="footer-link">Bug 2033777</a>
-  </footer>
+  <div class="footer">
+    <span>Made with ❤️ for the Firefox community</span>
+  </div>
 
   <script src="popup.js"></script>
 </body>

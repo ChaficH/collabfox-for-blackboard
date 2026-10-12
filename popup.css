@@ -1,52 +1,30 @@
 :root {
-  --bg-color: #ffffff;
-  --text-primary: #15141a;
-  --text-secondary: #5b5b66;
-  --card-bg: #f9f9fb;
-  --border-color: #e0e0e6;
+  --bg: #ffffff;
+  --text: #15141a;
+  --text-muted: #5b5b66;
+  --panel-bg: #f9f9fb;
+  --border: #e0e0e6;
   --switch-off: #cfcfd8;
-  --accent: #0060df;
+  --switch-on: #0060df;
   
-  --status-active-bg: #ecfdf5;
-  --status-active-border: #a7f3d0;
-  --status-active-text: #065f46;
-  --status-active-dot: #10b981;
-
-  --status-standby-bg: #f8fafc;
-  --status-standby-border: #e2e8f0;
-  --status-standby-text: #475569;
-  --status-standby-dot: #94a3b8;
-
-  --status-disabled-bg: #fef2f2;
-  --status-disabled-border: #fecaca;
-  --status-disabled-text: #991b1b;
-  --status-disabled-dot: #ef4444;
+  --dot-active: #12b886;
+  --dot-standby: #868e96;
+  --dot-off: #fa5252;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg-color: #2b2a33;
-    --text-primary: #fbfbfe;
-    --text-secondary: #cfcfd8;
-    --card-bg: #1c1b22;
-    --border-color: #42414d;
+    --bg: #2b2a33;
+    --text: #fbfbfe;
+    --text-muted: #cfcfd8;
+    --panel-bg: #1c1b22;
+    --border: #42414d;
     --switch-off: #52525e;
-    --accent: #00ddff;
+    --switch-on: #00ddff;
 
-    --status-active-bg: rgba(16, 185, 129, 0.12);
-    --status-active-border: rgba(16, 185, 129, 0.3);
-    --status-active-text: #6ee7b7;
-    --status-active-dot: #34d399;
-
-    --status-standby-bg: rgba(148, 163, 184, 0.1);
-    --status-standby-border: rgba(148, 163, 184, 0.25);
-    --status-standby-text: #cbd5e1;
-    --status-standby-dot: #94a3b8;
-
-    --status-disabled-bg: rgba(239, 68, 68, 0.12);
-    --status-disabled-border: rgba(239, 68, 68, 0.3);
-    --status-disabled-text: #fca5a5;
-    --status-disabled-dot: #f87171;
+    --dot-active: #20c997;
+    --dot-standby: #adb5bd;
+    --dot-off: #ff6b6b;
   }
 }
 
@@ -57,21 +35,25 @@
 }
 
 body {
-  width: 290px;
-  background: var(--bg-color);
-  color: var(--text-primary);
+  width: 260px;
+  background: var(--bg);
+  color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
   font-size: 12px;
   line-height: 1.4;
   user-select: none;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 14px;
-  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
 }
 
 .brand {
@@ -81,8 +63,8 @@ body {
 }
 
 .logo {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
 }
 
 .title {
@@ -90,48 +72,11 @@ body {
   font-weight: 600;
 }
 
-.version-tag {
-  font-size: 10.5px;
-  color: var(--text-secondary);
-  background: var(--card-bg);
-  padding: 1px 6px;
-  border-radius: 10px;
-  border: 1px solid var(--border-color);
-}
-
-.content {
-  padding: 12px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.toggle-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.toggle-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.toggle-title {
-  font-weight: 600;
-  font-size: 12.5px;
-}
-
-.toggle-sub {
-  font-size: 11px;
-  color: var(--text-secondary);
-}
-
-/* Native-style Toggle Switch */
+/* Switch */
 .switch {
   position: relative;
-  width: 36px;
-  height: 20px;
+  width: 34px;
+  height: 18px;
   flex-shrink: 0;
 }
 
@@ -147,14 +92,14 @@ body {
   inset: 0;
   background-color: var(--switch-off);
   transition: 0.15s ease;
-  border-radius: 20px;
+  border-radius: 18px;
 }
 
 .slider:before {
   position: absolute;
   content: "";
-  height: 14px;
-  width: 14px;
+  height: 12px;
+  width: 12px;
   left: 3px;
   bottom: 3px;
   background-color: #ffffff;
@@ -163,13 +108,10 @@ body {
 }
 
 input:checked + .slider {
-  background-color: #0060df;
+  background-color: var(--switch-on);
 }
 
 @media (prefers-color-scheme: dark) {
-  input:checked + .slider {
-    background-color: #00ddff;
-  }
   input:checked + .slider:before {
     background-color: #1c1b22;
   }
@@ -179,127 +121,100 @@ input:checked + .slider:before {
   transform: translateX(16px);
 }
 
-/* Status Badge */
-.status-badge {
+/* Simple status indicator */
+.status-bar {
   display: flex;
   align-items: center;
-  gap: 9px;
-  padding: 7px 10px;
-  border-radius: 6px;
-  border: 1px solid var(--status-standby-border);
-  background: var(--status-standby-bg);
-  transition: all 0.15s ease;
+  gap: 7px;
+  padding: 6px 8px;
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 11.5px;
 }
 
 .status-dot {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  background-color: var(--status-standby-dot);
   flex-shrink: 0;
+  background-color: var(--dot-standby);
 }
 
-.status-info {
+.status-bar[data-state="active"] .status-dot {
+  background-color: var(--dot-active);
+}
+
+.status-bar[data-state="off"] .status-dot {
+  background-color: var(--dot-off);
+}
+
+.status-text {
+  font-weight: 500;
+  color: var(--text);
+}
+
+/* Settings block */
+.settings {
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 6px 8px;
   display: flex;
   flex-direction: column;
+  gap: 6px;
 }
 
-.status-main {
-  font-weight: 600;
-  font-size: 11.5px;
-  color: var(--status-standby-text);
-}
-
-.status-detail {
-  font-size: 10.5px;
-  color: var(--text-secondary);
-}
-
-/* Status state variants */
-.status-badge[data-status="active"] {
-  background: var(--status-active-bg);
-  border-color: var(--status-active-border);
-}
-.status-badge[data-status="active"] .status-dot {
-  background-color: var(--status-active-dot);
-  box-shadow: 0 0 6px var(--status-active-dot);
-}
-.status-badge[data-status="active"] .status-main {
-  color: var(--status-active-text);
-}
-
-.status-badge[data-status="standby"] {
-  background: var(--status-standby-bg);
-  border-color: var(--status-standby-border);
-}
-.status-badge[data-status="standby"] .status-dot {
-  background-color: var(--status-standby-dot);
-}
-.status-badge[data-status="standby"] .status-main {
-  color: var(--status-standby-text);
-}
-
-.status-badge[data-status="disabled"] {
-  background: var(--status-disabled-bg);
-  border-color: var(--status-disabled-border);
-}
-.status-badge[data-status="disabled"] .status-dot {
-  background-color: var(--status-disabled-dot);
-}
-.status-badge[data-status="disabled"] .status-main {
-  color: var(--status-disabled-text);
-}
-
-/* Details Table */
-.info-table {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  padding: 7px 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.info-row {
+.field {
   display: flex;
   align-items: center;
   justify-content: space-between;
   font-size: 11px;
 }
 
-.info-key {
-  color: var(--text-secondary);
+.field-label {
+  color: var(--text-muted);
 }
 
-.info-val {
-  color: var(--text-primary);
-  max-width: 155px;
+.field-value {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 10.5px;
+  color: var(--text);
+  max-width: 140px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.mono {
-  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
-  font-size: 10.5px;
+.native-select {
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 2px 4px;
+  font-size: 11px;
+  outline: none;
+  cursor: pointer;
+}
+
+.native-select:focus {
+  border-color: var(--switch-on);
 }
 
 .reload-btn {
-  background: var(--card-bg);
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
+  background: var(--panel-bg);
+  color: var(--text);
+  border: 1px solid var(--border);
   border-radius: 4px;
   padding: 6px 10px;
   font-size: 11.5px;
   font-weight: 500;
   cursor: pointer;
-  width: 100%;
   transition: background 0.1s ease;
 }
 
 .reload-btn:hover {
-  background: var(--border-color);
+  background: var(--border);
 }
 
 .reload-btn:active {
@@ -307,25 +222,12 @@ input:checked + .slider:before {
 }
 
 .footer {
-  padding: 8px 14px;
-  border-top: 1px solid var(--border-color);
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  align-items: center;
+  padding-top: 6px;
+  border-top: 1px solid var(--border);
+  text-align: center;
 }
 
-.footer-love {
-  font-size: 10.5px;
-  color: var(--text-secondary);
-}
-
-.footer-link {
-  color: var(--text-secondary);
-  text-decoration: none;
+.footer span {
   font-size: 10px;
-}
-
-.footer-link:hover {
-  text-decoration: underline;
+  color: var(--text-muted);
 }

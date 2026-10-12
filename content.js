@@ -1,18 +1,23 @@
 // CollabFox - Ultra-lightweight Blackboard compatibility shim
-browser.storage.local.get({ enabled: true }).then(({ enabled }) => {
+browser.storage.local.get({ enabled: true, spoofOs: "auto" }).then(({ enabled, spoofOs }) => {
   if (!enabled) return;
 
-  const ua = navigator.userAgent || "";
-  const isAndroid = /Android/i.test(ua);
-  const isTablet = /Tablet/i.test(ua);
-  const isWin = /Windows/i.test(ua);
-  const isLin = /Linux/i.test(ua) && !isAndroid;
+  const rawUa = navigator.userAgent || "";
+  let os = spoofOs || "auto";
 
-  const chromeUA = isAndroid
+  if (os === "auto") {
+    if (/Android/i.test(rawUa)) os = "android";
+    else if (/Windows/i.test(rawUa)) os = "windows";
+    else if (/Linux/i.test(rawUa)) os = "linux";
+    else os = "mac";
+  }
+
+  const isTablet = /Tablet/i.test(rawUa);
+  const chromeUA = os === "android"
     ? `Mozilla/5.0 (Linux; Android 14; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 ${isTablet ? "" : "Mobile "}Safari/537.36`
-    : isWin
+    : os === "windows"
     ? "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
-    : isLin
+    : os === "linux"
     ? "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
     : "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36";
 
