@@ -1,39 +1,93 @@
 document.addEventListener("DOMContentLoaded", async () => {
   const toggle = document.getElementById("enableToggle");
-  const siteLabel = document.getElementById("siteLabel");
+  const toggleStateText = document.getElementById("toggleStateText");
+  const statusBadge = document.getElementById("statusBadge");
+  const statusMain = document.getElementById("statusMain");
+  const statusDetail = document.getElementById("statusDetail");
+  const currentDomain = document.getElementById("currentDomain");
   const detectedPlatform = document.getElementById("detectedPlatform");
   const reloadBtn = document.getElementById("reloadTabBtn");
 
-  const isAndroid = /Android/i.test(navigator.userAgent);
-  const isWindows = /Windows/i.test(navigator.userAgent);
-  const isMac = /Mac/i.test(navigator.userAgent);
-  detectedPlatform.textContent = isAndroid ? "Android" : isWindows ? "Windows" : isMac ? "macOS" : "Linux";
+  // Platform detection
+  const ua = navigator.userAgent;
+  detectedPlatform.textContent = /Android/i.test(ua)
+    ? "Android"
+    : /Windows/i.test(ua)
+    ? "Windows"
+    : /Mac/i.test(ua)
+    ? "macOS"
+    : "Linux";
 
-  const { enabled = true } = await browser.storage.local.get("enabled");
-  toggle.checked = enabled;
-  siteLabel.textContent = enabled ? "Enabled" : "Disabled";
+  // Fast parallel initialization
+  let enabled = true;
+  let activeTab = null;
+
+  try {
+    const [storage, tabs] = await Promise.all([
+      browser.storage.local.get({ enabled: true }),
+      browser.tabs.query({ active: true, currentWindow: true })
+    ]);
+    enabled = storage.enabled;
+    activeTab = tabs?.[0];
+  } catch (e) {}
+
+  let hostname = "";
+  let isCollabSite = false;
+
+  if (activeTab?.url) {
+    try {
+      const parsed = new URL(activeTab.url);
+      if (parsed.protocol.startsWith("http")) {
+        hostname = parsed.hostname;
+        isCollabSite = /bbcollab\.com|class\.com|blackboard\.com/i.test(hostname);
+      } else {
+        hostname = parsed.protocol.replace(":", "");
+      }
+    } catch (e) {}
+  }
+
+  currentDomain.textContent = hostname || "—";
+  currentDomain.title = hostname || "";
+
+  function renderStatus(isEnabled) {
+    toggle.checked = isEnabled;
+    toggleStateText.textContent = isEnabled ? "Enabled" : "Disabled";
+
+    if (!isEnabled) {
+      statusBadge.dataset.status = "disabled";
+      statusMain.textContent = "Disabled";
+      statusDetail.textContent = "Intervention paused";
+    } else if (isCollabSite) {
+      statusBadge.dataset.status = "active";
+      statusMain.textContent = "Active";
+      statusDetail.textContent = "Fix active on this tab";
+    } else {
+      statusBadge.dataset.status = "standby";
+      statusMain.textContent = "Standby";
+      statusDetail.textContent = "Not a Collaborate page";
+    }
+  }
+
+  renderStatus(enabled);
 
   toggle.addEventListener("change", async () => {
     const isChecked = toggle.checked;
     await browser.storage.local.set({ enabled: isChecked });
-    siteLabel.textContent = isChecked ? "Enabled" : "Disabled";
+    renderStatus(isChecked);
 
-    // Auto-reload active tab if on Blackboard/Class
-    try {
-      const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
-      if (tab?.url && (/bbcollab\.com|class\.com|blackboard\.com/i).test(tab.url)) {
-        await browser.tabs.reload(tab.id);
-      }
-    } catch (e) {}
+    if (activeTab?.id && isCollabSite) {
+      try {
+        await browser.tabs.reload(activeTab.id);
+      } catch (e) {}
+    }
   });
 
   reloadBtn.addEventListener("click", async () => {
-    try {
-      const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
-      if (tab?.id) {
-        await browser.tabs.reload(tab.id);
+    if (activeTab?.id) {
+      try {
+        await browser.tabs.reload(activeTab.id);
         window.close();
-      }
-    } catch (e) {}
+      } catch (e) {}
+    }
   });
 });

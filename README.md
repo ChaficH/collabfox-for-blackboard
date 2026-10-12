@@ -62,3 +62,4 @@ This issue has been formally diagnosed and submitted to the Mozilla Web Compatib
 ## 📄 License
 
 This project is licensed under the [Mozilla Public License 2.0 (MPL-2.0)](LICENSE).
+

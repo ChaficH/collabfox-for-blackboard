@@ -12,42 +12,50 @@
       <img src="icons/icon-32.png" alt="" class="logo">
       <span class="title">CollabFox</span>
     </div>
-    <span class="version">v1.0.0</span>
+    <span class="version-tag">v1.0.0</span>
   </header>
 
   <main class="content">
-    <div class="row">
-      <div class="row-label">
-        <span class="label-title">Compatibility Mode</span>
-        <span class="label-sub" id="siteLabel">Enabled</span>
+    <div class="toggle-card">
+      <div class="toggle-info">
+        <span class="toggle-title">Compatibility Fix</span>
+        <span class="toggle-sub" id="toggleStateText">Enabled</span>
       </div>
-      <label class="switch">
+      <label class="switch" title="Toggle compatibility fix">
         <input type="checkbox" id="enableToggle" checked>
         <span class="slider"></span>
       </label>
     </div>
 
-    <div class="info-table">
-      <div class="info-row">
-        <span>Target</span>
-        <span class="mono">*.bbcollab.com</span>
-      </div>
-      <div class="info-row">
-        <span>Platform</span>
-        <span id="detectedPlatform" class="mono">Auto</span>
-      </div>
-      <div class="info-row">
-        <span>Engine</span>
-        <span class="mono">-moz-appearance bypass</span>
+    <div class="status-badge" id="statusBadge" data-status="active">
+      <span class="status-dot"></span>
+      <div class="status-info">
+        <span class="status-main" id="statusMain">Active</span>
+        <span class="status-detail" id="statusDetail">Fix applied to this tab</span>
       </div>
     </div>
 
-    <button id="reloadTabBtn" class="action-btn">Reload tab</button>
+    <div class="info-table">
+      <div class="info-row">
+        <span class="info-key">Current Tab</span>
+        <span class="info-val mono" id="currentDomain" title="">Detecting...</span>
+      </div>
+      <div class="info-row">
+        <span class="info-key">Platform</span>
+        <span class="info-val mono" id="detectedPlatform">Detecting...</span>
+      </div>
+      <div class="info-row">
+        <span class="info-key">Intervention</span>
+        <span class="info-val mono">-moz-appearance + UA</span>
+      </div>
+    </div>
+
+    <button id="reloadTabBtn" class="reload-btn">Reload tab</button>
   </main>
 
   <footer class="footer">
     <span class="footer-love">Made with ❤️ for the Firefox community</span>
-    <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=2033777" target="_blank" class="footer-link">Bug 2033777</a>
+    <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=2033777" target="_blank" rel="noopener" class="footer-link">Bug 2033777</a>
   </footer>
 
   <script src="popup.js"></script>

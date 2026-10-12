@@ -4,3 +4,4 @@
 *.crx
 node_modules/
 .web-extension-id/
+

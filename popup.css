@@ -1,24 +1,52 @@
 :root {
   --bg-color: #ffffff;
-  --text-color: #15141a;
-  --text-muted: #5b5b66;
-  --border-color: #e0e0e6;
+  --text-primary: #15141a;
+  --text-secondary: #5b5b66;
   --card-bg: #f9f9fb;
-  --accent-color: #0060df;
-  --accent-hover: #003eaa;
+  --border-color: #e0e0e6;
   --switch-off: #cfcfd8;
+  --accent: #0060df;
+  
+  --status-active-bg: #ecfdf5;
+  --status-active-border: #a7f3d0;
+  --status-active-text: #065f46;
+  --status-active-dot: #10b981;
+
+  --status-standby-bg: #f8fafc;
+  --status-standby-border: #e2e8f0;
+  --status-standby-text: #475569;
+  --status-standby-dot: #94a3b8;
+
+  --status-disabled-bg: #fef2f2;
+  --status-disabled-border: #fecaca;
+  --status-disabled-text: #991b1b;
+  --status-disabled-dot: #ef4444;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --bg-color: #2b2a33;
-    --text-color: #fbfbfe;
-    --text-muted: #cfcfd8;
-    --border-color: #42414d;
+    --text-primary: #fbfbfe;
+    --text-secondary: #cfcfd8;
     --card-bg: #1c1b22;
-    --accent-color: #00ddff;
-    --accent-hover: #80ebff;
+    --border-color: #42414d;
     --switch-off: #52525e;
+    --accent: #00ddff;
+
+    --status-active-bg: rgba(16, 185, 129, 0.12);
+    --status-active-border: rgba(16, 185, 129, 0.3);
+    --status-active-text: #6ee7b7;
+    --status-active-dot: #34d399;
+
+    --status-standby-bg: rgba(148, 163, 184, 0.1);
+    --status-standby-border: rgba(148, 163, 184, 0.25);
+    --status-standby-text: #cbd5e1;
+    --status-standby-dot: #94a3b8;
+
+    --status-disabled-bg: rgba(239, 68, 68, 0.12);
+    --status-disabled-border: rgba(239, 68, 68, 0.3);
+    --status-disabled-text: #fca5a5;
+    --status-disabled-dot: #f87171;
   }
 }
 
@@ -29,10 +57,9 @@
 }
 
 body {
-  width: 280px;
-  max-width: 100vw;
+  width: 290px;
   background: var(--bg-color);
-  color: var(--text-color);
+  color: var(--text-primary);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
   font-size: 12px;
   line-height: 1.4;
@@ -63,37 +90,41 @@ body {
   font-weight: 600;
 }
 
-.version {
-  font-size: 11px;
-  color: var(--text-muted);
+.version-tag {
+  font-size: 10.5px;
+  color: var(--text-secondary);
+  background: var(--card-bg);
+  padding: 1px 6px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
 }
 
 .content {
   padding: 12px 14px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
-.row {
+.toggle-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.row-label {
+.toggle-info {
   display: flex;
   flex-direction: column;
 }
 
-.label-title {
+.toggle-title {
   font-weight: 600;
-  font-size: 12px;
+  font-size: 12.5px;
 }
 
-.label-sub {
+.toggle-sub {
   font-size: 11px;
-  color: var(--text-muted);
+  color: var(--text-secondary);
 }
 
 /* Native-style Toggle Switch */
@@ -148,11 +179,83 @@ input:checked + .slider:before {
   transform: translateX(16px);
 }
 
+/* Status Badge */
+.status-badge {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--status-standby-border);
+  background: var(--status-standby-bg);
+  transition: all 0.15s ease;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--status-standby-dot);
+  flex-shrink: 0;
+}
+
+.status-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.status-main {
+  font-weight: 600;
+  font-size: 11.5px;
+  color: var(--status-standby-text);
+}
+
+.status-detail {
+  font-size: 10.5px;
+  color: var(--text-secondary);
+}
+
+/* Status state variants */
+.status-badge[data-status="active"] {
+  background: var(--status-active-bg);
+  border-color: var(--status-active-border);
+}
+.status-badge[data-status="active"] .status-dot {
+  background-color: var(--status-active-dot);
+  box-shadow: 0 0 6px var(--status-active-dot);
+}
+.status-badge[data-status="active"] .status-main {
+  color: var(--status-active-text);
+}
+
+.status-badge[data-status="standby"] {
+  background: var(--status-standby-bg);
+  border-color: var(--status-standby-border);
+}
+.status-badge[data-status="standby"] .status-dot {
+  background-color: var(--status-standby-dot);
+}
+.status-badge[data-status="standby"] .status-main {
+  color: var(--status-standby-text);
+}
+
+.status-badge[data-status="disabled"] {
+  background: var(--status-disabled-bg);
+  border-color: var(--status-disabled-border);
+}
+.status-badge[data-status="disabled"] .status-dot {
+  background-color: var(--status-disabled-dot);
+}
+.status-badge[data-status="disabled"] .status-main {
+  color: var(--status-disabled-text);
+}
+
+/* Details Table */
 .info-table {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
   border-radius: 6px;
-  padding: 6px 10px;
+  padding: 7px 10px;
   display: flex;
   flex-direction: column;
   gap: 5px;
@@ -160,35 +263,46 @@ input:checked + .slider:before {
 
 .info-row {
   display: flex;
+  align-items: center;
   justify-content: space-between;
   font-size: 11px;
-  color: var(--text-muted);
+}
+
+.info-key {
+  color: var(--text-secondary);
+}
+
+.info-val {
+  color: var(--text-primary);
+  max-width: 155px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .mono {
   font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
   font-size: 10.5px;
-  color: var(--text-color);
 }
 
-.action-btn {
+.reload-btn {
   background: var(--card-bg);
-  color: var(--text-color);
+  color: var(--text-primary);
   border: 1px solid var(--border-color);
   border-radius: 4px;
-  padding: 7px 10px;
-  font-size: 12px;
+  padding: 6px 10px;
+  font-size: 11.5px;
   font-weight: 500;
   cursor: pointer;
   width: 100%;
   transition: background 0.1s ease;
 }
 
-.action-btn:hover {
+.reload-btn:hover {
   background: var(--border-color);
 }
 
-.action-btn:active {
+.reload-btn:active {
   opacity: 0.8;
 }
 
@@ -197,17 +311,17 @@ input:checked + .slider:before {
   border-top: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
   align-items: center;
 }
 
 .footer-love {
   font-size: 10.5px;
-  color: var(--text-muted);
+  color: var(--text-secondary);
 }
 
 .footer-link {
-  color: var(--text-muted);
+  color: var(--text-secondary);
   text-decoration: none;
   font-size: 10px;
 }
