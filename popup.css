@@ -35,7 +35,7 @@
 }
 
 body {
-  width: 260px;
+  width: 250px;
   background: var(--bg);
   color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
@@ -72,7 +72,7 @@ body {
   font-weight: 600;
 }
 
-/* Switch */
+/* Native Switch */
 .switch {
   position: relative;
   width: 34px;
@@ -121,7 +121,7 @@ input:checked + .slider:before {
   transform: translateX(16px);
 }
 
-/* Simple status indicator */
+/* Status indicator */
 .status-bar {
   display: flex;
   align-items: center;
@@ -180,25 +180,10 @@ input:checked + .slider:before {
   font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
   font-size: 10.5px;
   color: var(--text);
-  max-width: 140px;
+  max-width: 145px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.native-select {
-  background: var(--bg);
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  padding: 2px 4px;
-  font-size: 11px;
-  outline: none;
-  cursor: pointer;
-}
-
-.native-select:focus {
-  border-color: var(--switch-on);
 }
 
 .reload-btn {

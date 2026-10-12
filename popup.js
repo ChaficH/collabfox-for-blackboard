@@ -2,39 +2,34 @@ document.addEventListener("DOMContentLoaded", async () => {
   const toggle = document.getElementById("enableToggle");
   const statusBar = document.getElementById("statusBar");
   const statusText = document.getElementById("statusText");
-  const osSelect = document.getElementById("osSelect");
-  const autoOption = document.getElementById("autoOption");
+  const detectedPlatform = document.getElementById("detectedPlatform");
   const currentSite = document.getElementById("currentSite");
   const reloadBtn = document.getElementById("reloadTabBtn");
 
-  // Detect local OS to display on Auto option
+  // Auto detect platform
   const rawUa = navigator.userAgent;
-  const detectedOsName = /Android/i.test(rawUa)
+  detectedPlatform.textContent = /Android/i.test(rawUa)
     ? "Android"
     : /Windows/i.test(rawUa)
     ? "Windows"
     : /Mac/i.test(rawUa)
     ? "macOS"
     : "Linux";
-  autoOption.textContent = `Auto (${detectedOsName})`;
 
   // Fast parallel load
   let enabled = true;
-  let spoofOs = "auto";
   let activeTab = null;
 
   try {
     const [storage, tabs] = await Promise.all([
-      browser.storage.local.get({ enabled: true, spoofOs: "auto" }),
+      browser.storage.local.get({ enabled: true }),
       browser.tabs.query({ active: true, currentWindow: true })
     ]);
     enabled = storage.enabled;
-    spoofOs = storage.spoofOs || "auto";
     activeTab = tabs?.[0];
   } catch (e) {}
 
   toggle.checked = enabled;
-  osSelect.value = spoofOs;
 
   let hostname = "";
   let isCollabSite = false;
@@ -69,7 +64,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   updateStatus(enabled);
 
-  // Toggle enable/disable
   toggle.addEventListener("change", async () => {
     const isChecked = toggle.checked;
     await browser.storage.local.set({ enabled: isChecked });
@@ -82,18 +76,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  // OS selection change
-  osSelect.addEventListener("change", async () => {
-    await browser.storage.local.set({ spoofOs: osSelect.value });
-
-    if (activeTab?.id && isCollabSite && toggle.checked) {
-      try {
-        await browser.tabs.reload(activeTab.id);
-      } catch (e) {}
-    }
-  });
-
-  // Reload button
   reloadBtn.addEventListener("click", async () => {
     if (activeTab?.id) {
       try {
