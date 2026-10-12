@@ -29,30 +29,33 @@ CollabFox neutralizes both barriers seamlessly with near-zero runtime overhead.
 
 ---
 
-## ⚙️ How It Works
+## ⚙️ Architecture & CSP Safety
 
-CollabFox executes synchronously at `document_start` before Collaborate's scripts initialize:
+CollabFox uses a dual-script architecture designed to eliminate asynchronous race conditions and remain 100% compliant with strict Content Security Policies (CSP):
 
+* **Main-World Synchronous Injection (`shim.js`):** Runs directly in `world: "MAIN"` at `document_start`. Because it executes through Firefox's native extension engine without creating or appending `<script>` DOM elements, it **completely bypasses site CSP `'unsafe-inline'` restrictions** and guarantees execution before any page scripts or bundles can load.
+* **Asynchronous Preference Bridging (`content.js`):** Runs in the isolated extension world to query `browser.storage.local`. It synchronizes the user's enabled/disabled state via `sessionStorage` and event listeners so that disabled states are respected without slowing down synchronous startup.
 * **`CSS.supports` Interception:** Stubs `CSS.supports("-moz-appearance", ...)` to return `false` on Collaborate domains while preserving native Gecko behavior for every other CSS property.
 * **Dynamic Identity & Client Hints:** Computes Chrome version dynamically (`Math.max(148, ffMajor + 6)`) so it never becomes outdated, and stubs `navigator.userAgentData` (Client Hints) alongside `navigator.userAgent`, `appVersion`, and `vendor`.
-* **Untouched WebRTC Integrity:** Leaves all native `RTCPeerConnection`, `MediaStream`, microphone, camera, and screen sharing APIs 100% native and untampered.
-* **Zero-Resource Footprint:** 100% event-driven with zero background service workers, zero alarms, and zero polling. Injects in $<0.05\text{ms}$ and disposes of its temporary DOM node immediately.
+* **Zero-Resource Footprint:** 100% event-driven with zero background service workers, zero alarms, and zero polling.
 
 ---
 
-## 🧪 WebRTC Compatibility & Test Matrix
+## 🧪 Compatibility & Testing Status
 
-Because CollabFox operates at the client compatibility boundary without modifying underlying media streams, it relies on Firefox's native Gecko WebRTC engine (`libwebrtc`).
+CollabFox addresses the client-side browser gatekeeper. Underlying media transport (audio, video, data channels) is handled directly by Firefox's native Gecko WebRTC engine (`libwebrtc`):
 
-| Feature | Firefox Desktop | Firefox Android | Technical Details |
-| :--- | :---: | :---: | :--- |
-| **Room Join / Auth** | ✅ Verified | ✅ Verified | Client-side capability gates neutralized. |
-| **Microphone (Audio)** | ✅ Verified | ✅ Verified | Native `getUserMedia({ audio: true })`. |
-| **Webcam (Video)** | ✅ Verified | ✅ Verified | Native `getUserMedia({ video: true })` with VP8/H.264. |
-| **Screen Sharing** | ✅ Verified | ⚠️ N/A | Native `getDisplayMedia()` on Desktop (Mobile OS limitation). |
-| **Chat & Whiteboard** | ✅ Verified | ✅ Verified | WebRTC DataChannels & WebSocket transport. |
-| **ICE Restarts / Reconnect** | ✅ Verified | ✅ Verified | RFC 5245 / 8445 compliant network recovery. |
-| **Embedded LMS iFrames** | ✅ Verified | ✅ Verified | Injected cleanly via `all_frames: true`. |
+| Capability | Status | Implementation Details |
+| :--- | :---: | :--- |
+| **Room Join & Auth Gate** | **Verified** | Dual-layer browser checks (`-moz-appearance` + Chrome UA) neutralized. |
+| **Microphone & Audio** | **Supported** | Handled natively by Gecko's `getUserMedia({ audio: true })`. |
+| **Camera & Video** | **Supported** | Handled natively by Gecko's `getUserMedia({ video: true })` (VP8/H.264). |
+| **Screen Sharing** | **Supported (Desktop)** | Uses native `getDisplayMedia()`. (Unavailable in mobile browser tabs). |
+| **Chat & Data Channels** | **Supported** | Standard WebRTC DataChannels & WebSocket transport. |
+| **Network Reconnect** | **Supported** | Standard RFC 5245 / 8445 ICE restarts managed by Gecko. |
+| **Embedded LMS iFrames** | **Supported** | Content scripts run with `all_frames: true` for embedded room portals. |
+
+> **Note on Live Testing:** While the compatibility gate bypass has been confirmed in live Blackboard Collaborate rooms, end-to-end media stability across diverse university deployments and peripheral hardware is an ongoing community effort. If you encounter any anomalies, please report them on the [Issue Tracker](https://github.com/ChaficH/collabfox-for-blackboard/issues).
 
 ---
 

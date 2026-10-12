@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "CollabFox for Blackboard",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Enables Blackboard Collaborate on Firefox Desktop and Android by neutralizing artificial browser barriers.",
   "icons": {
     "16": "icons/icon-16.png",
@@ -43,6 +43,17 @@
     "*://*.collab.blackboard.com/*"
   ],
   "content_scripts": [
+    {
+      "matches": [
+        "*://*.bbcollab.com/*",
+        "*://*.class.com/*",
+        "*://*.collab.blackboard.com/*"
+      ],
+      "js": ["shim.js"],
+      "run_at": "document_start",
+      "world": "MAIN",
+      "all_frames": true
+    },
     {
       "matches": [
         "*://*.bbcollab.com/*",
