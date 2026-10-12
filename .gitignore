@@ -1,0 +1,6 @@
+.DS_Store
+*.zip
+*.xpi
+*.crx
+node_modules/
+.web-extension-id/

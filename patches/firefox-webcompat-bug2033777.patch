@@ -1,0 +1,22 @@
+# HG changeset patch
+# User Chafic <chafic@example.com>
+# Parent  1a9088aaf74c468ef380788e47d8691c36e12f27
+Bug 2033777 - Change class.com / bbcollab.com intervention to Chrome UA override; r=twisniewski,webcompat-reviewers
+
+Blackboard Collaborate / Class.com has updated their client-side check to explicitly test for 'Firefox' in navigator.userAgent. Using 'add_Chrome' leaves the Firefox token in place, which triggers the 'Firefox not supported' block screen. Switching to 'Chrome' sets noFxQuantum=true and generates a clean Chrome User-Agent without the Firefox token.
+
+Differential Revision: https://phabricator.services.mozilla.com/D298664
+
+diff --git a/browser/extensions/webcompat/data/interventions/1912923-class.com.json b/browser/extensions/webcompat/data/interventions/1912923-class.com.json
+--- a/browser/extensions/webcompat/data/interventions/1912923-class.com.json
++++ b/browser/extensions/webcompat/data/interventions/1912923-class.com.json
+@@ -17,5 +17,5 @@
+   "interventions": [
+     {
+       "platforms": ["all"],
+-      "ua_string": ["add_Chrome"]
++      "ua_string": ["Chrome"]
+     }
+   ]
+ }
+
