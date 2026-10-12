@@ -12,33 +12,31 @@
       <img src="icons/icon-32.png" alt="" class="logo">
       <span class="title">CollabFox</span>
     </div>
-    <label class="switch" title="Toggle CollabFox">
+    <label class="switch" title="Toggle">
       <input type="checkbox" id="enableToggle" checked>
       <span class="slider"></span>
     </label>
   </div>
 
   <div class="status-bar" id="statusBar">
-    <span class="status-dot" id="statusDot"></span>
-    <span class="status-text" id="statusText">Checking...</span>
+    <span class="dot"></span>
+    <span id="statusText">Checking...</span>
   </div>
 
   <div class="settings">
     <div class="field">
-      <span class="field-label">Platform</span>
-      <span class="field-value" id="detectedPlatform">—</span>
+      <span>Platform</span>
+      <span class="val" id="platform">—</span>
     </div>
     <div class="field">
-      <span class="field-label">Current tab</span>
-      <span class="field-value" id="currentSite" title="">—</span>
+      <span>Current tab</span>
+      <span class="val" id="currentSite" title="">—</span>
     </div>
   </div>
 
-  <button id="reloadTabBtn" class="reload-btn">Reload tab</button>
+  <button id="reloadBtn" class="reload-btn">Reload tab</button>
 
-  <div class="footer">
-    <span>Made with ❤️ for the Firefox community</span>
-  </div>
+  <div class="footer">Made with ❤️ for the Firefox community</div>
 
   <script src="popup.js"></script>
 </body>

@@ -2,21 +2,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   const toggle = document.getElementById("enableToggle");
   const statusBar = document.getElementById("statusBar");
   const statusText = document.getElementById("statusText");
-  const detectedPlatform = document.getElementById("detectedPlatform");
+  const platform = document.getElementById("platform");
   const currentSite = document.getElementById("currentSite");
-  const reloadBtn = document.getElementById("reloadTabBtn");
+  const reloadBtn = document.getElementById("reloadBtn");
 
-  // Auto detect platform
-  const rawUa = navigator.userAgent;
-  detectedPlatform.textContent = /Android/i.test(rawUa)
-    ? "Android"
-    : /Windows/i.test(rawUa)
-    ? "Windows"
-    : /Mac/i.test(rawUa)
-    ? "macOS"
-    : "Linux";
+  const ua = navigator.userAgent;
+  platform.textContent = /Android/i.test(ua) ? "Android" : /Windows/i.test(ua) ? "Windows" : /Mac/i.test(ua) ? "macOS" : "Linux";
 
-  // Fast parallel load
   let enabled = true;
   let activeTab = null;
 
@@ -32,16 +24,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   toggle.checked = enabled;
 
   let hostname = "";
-  let isCollabSite = false;
+  let isCollab = false;
 
   if (activeTab?.url) {
     try {
-      const parsed = new URL(activeTab.url);
-      if (parsed.protocol.startsWith("http")) {
-        hostname = parsed.hostname;
-        isCollabSite = /bbcollab\.com|class\.com|blackboard\.com/i.test(hostname);
+      const url = new URL(activeTab.url);
+      if (url.protocol.startsWith("http")) {
+        hostname = url.hostname;
+        isCollab = /bbcollab\.com|class\.com|blackboard\.com/i.test(hostname);
       } else {
-        hostname = parsed.protocol.replace(":", "");
+        hostname = url.protocol.replace(":", "");
       }
     } catch (e) {}
   }
@@ -49,30 +41,27 @@ document.addEventListener("DOMContentLoaded", async () => {
   currentSite.textContent = hostname || "—";
   currentSite.title = hostname || "";
 
-  function updateStatus(isEnabled) {
-    if (!isEnabled) {
-      statusBar.dataset.state = "off";
+  function setStatus(on) {
+    if (!on) {
+      statusBar.dataset.s = "off";
       statusText.textContent = "Disabled";
-    } else if (isCollabSite) {
-      statusBar.dataset.state = "active";
+    } else if (isCollab) {
+      statusBar.dataset.s = "active";
       statusText.textContent = "Active on this tab";
     } else {
-      statusBar.dataset.state = "standby";
+      statusBar.dataset.s = "standby";
       statusText.textContent = "Inactive on this tab";
     }
   }
 
-  updateStatus(enabled);
+  setStatus(enabled);
 
   toggle.addEventListener("change", async () => {
-    const isChecked = toggle.checked;
-    await browser.storage.local.set({ enabled: isChecked });
-    updateStatus(isChecked);
-
-    if (activeTab?.id && isCollabSite) {
-      try {
-        await browser.tabs.reload(activeTab.id);
-      } catch (e) {}
+    const on = toggle.checked;
+    await browser.storage.local.set({ enabled: on });
+    setStatus(on);
+    if (activeTab?.id && isCollab) {
+      try { await browser.tabs.reload(activeTab.id); } catch (e) {}
     }
   });
 
