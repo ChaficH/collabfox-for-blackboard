@@ -34,9 +34,25 @@ CollabFox neutralizes both barriers seamlessly with near-zero runtime overhead.
 CollabFox executes synchronously at `document_start` before Collaborate's scripts initialize:
 
 * **`CSS.supports` Interception:** Stubs `CSS.supports("-moz-appearance", ...)` to return `false` on Collaborate domains while preserving native Gecko behavior for every other CSS property.
-* **Client Identity Alignment:** Synchronously overrides `navigator.userAgent`, `navigator.appVersion`, and `navigator.vendor` with modern Chrome equivalents matching your platform (Windows, macOS, Linux, or Android).
+* **Dynamic Identity & Client Hints:** Computes Chrome version dynamically (`Math.max(148, ffMajor + 6)`) so it never becomes outdated, and stubs `navigator.userAgentData` (Client Hints) alongside `navigator.userAgent`, `appVersion`, and `vendor`.
 * **Untouched WebRTC Integrity:** Leaves all native `RTCPeerConnection`, `MediaStream`, microphone, camera, and screen sharing APIs 100% native and untampered.
 * **Zero-Resource Footprint:** 100% event-driven with zero background service workers, zero alarms, and zero polling. Injects in $<0.05\text{ms}$ and disposes of its temporary DOM node immediately.
+
+---
+
+## 🧪 WebRTC Compatibility & Test Matrix
+
+Because CollabFox operates at the client compatibility boundary without modifying underlying media streams, it relies on Firefox's native Gecko WebRTC engine (`libwebrtc`).
+
+| Feature | Firefox Desktop | Firefox Android | Technical Details |
+| :--- | :---: | :---: | :--- |
+| **Room Join / Auth** | ✅ Verified | ✅ Verified | Client-side capability gates neutralized. |
+| **Microphone (Audio)** | ✅ Verified | ✅ Verified | Native `getUserMedia({ audio: true })`. |
+| **Webcam (Video)** | ✅ Verified | ✅ Verified | Native `getUserMedia({ video: true })` with VP8/H.264. |
+| **Screen Sharing** | ✅ Verified | ⚠️ N/A | Native `getDisplayMedia()` on Desktop (Mobile OS limitation). |
+| **Chat & Whiteboard** | ✅ Verified | ✅ Verified | WebRTC DataChannels & WebSocket transport. |
+| **ICE Restarts / Reconnect** | ✅ Verified | ✅ Verified | RFC 5245 / 8445 compliant network recovery. |
+| **Embedded LMS iFrames** | ✅ Verified | ✅ Verified | Injected cleanly via `all_frames: true`. |
 
 ---
 
@@ -61,7 +77,7 @@ CollabFox operates under a strict principle of least privilege:
 | :--- | :--- |
 | `storage` | Stores your on/off toggle state locally in your browser profile. |
 | `activeTab` | Allows the popup to detect if the current active tab is a Collaborate room and reload it when toggled. |
-| `*://*.bbcollab.com/*`<br>`*://*.class.com/*`<br>`*://*.blackboard.com/*` | Scopes script execution exclusively to Collaborate domains. |
+| `*://*.bbcollab.com/*`<br>`*://*.class.com/*`<br>`*://*.collab.blackboard.com/*` | Scopes script execution exclusively to Collaborate meeting domains (excludes general Blackboard portals). Includes `all_frames: true` for embedded room frames. |
 
 * **Zero Tracking:** No analytics, telemetry, or remote dependencies.
 * **100% Offline:** Runs entirely within your local browser sandbox.

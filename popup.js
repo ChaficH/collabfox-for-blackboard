@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const url = new URL(activeTab.url);
       if (url.protocol.startsWith("http")) {
         hostname = url.hostname;
-        isCollab = /bbcollab\.com|class\.com|blackboard\.com/i.test(hostname);
+        isCollab = /bbcollab\.com|class\.com|collab\.blackboard\.com/i.test(hostname);
       } else {
         hostname = url.protocol.replace(":", "");
       }
